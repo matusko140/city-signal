@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>City Signal | NYC complaint forecasts</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <script src="dashboard.js" defer></script>
+</head>
+<body>
+  <header class="page-header">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">⌁</span> City Signal</div>
+    <span class="header-note">NYC complaint forecasts</span>
+  </header>
+  <main>
+    <h1>Complaint counts by hour</h1>
+    <p class="intro">Explore how a spatial CNN performed on historical NYPD complaints. Each map square covers about 4 km across.</p>
+    <p id="status" class="status" role="status">Loading model results…</p>
+    <div id="dashboard" hidden>
+      <div class="toolbar">
+        <label>Date <input type="date" id="date"></label>
+        <label>Map layer
+          <select id="layer">
+            <option value="actual">Observed</option>
+            <option value="forecast">CNN forecast</option>
+            <option value="baseline">Same hour last week</option>
+            <option value="error">Forecast error</option>
+          </select>
+        </label>
+        <button type="button" id="play">▶ Play day</button>
+        <button type="button" id="export" class="export">Export hour CSV</button>
+      </div>
+
+      <div class="layout">
+        <section class="panel map-panel">
+          <div class="section-head"><h2>New York City</h2><span id="map-time"></span></div>
+          <svg id="map" viewBox="0 0 480 480" aria-label="Map of New York City split into 144 cells">
+            <g id="land"></g>
+            <g id="cells"></g>
+            <g id="borough-labels" aria-hidden="true"></g>
+          </svg>
+          <div class="map-legend"><span id="legend-low">0</span><span id="scale"></span><span id="legend-high"></span><span id="legend-unit">complaints</span></div>
+          <div class="timeline">
+            <label for="hour">Hour in New York</label>
+            <output id="hour-label" for="hour"></output>
+            <input type="range" id="hour" min="0" max="23" value="18">
+          </div>
+        </section>
+
+        <div class="side">
+          <section class="panel">
+            <div class="section-head"><h2 id="chart-title">Citywide counts</h2><button type="button" id="clear-cell" hidden>Reset map selection</button></div>
+            <div class="series-legend"><span class="actual">Observed</span><span class="forecast">CNN forecast</span><span class="baseline">Last week</span></div>
+            <svg id="chart" viewBox="0 0 480 220" aria-label="Observed, forecast and baseline complaint counts for the selected day"></svg>
+            <div class="hour-values">
+              <div><span>Observed</span><strong id="actual-count"></strong></div>
+              <div><span>CNN forecast</span><strong id="forecast-count"></strong></div>
+              <div><span>Last week</span><strong id="baseline-count"></strong></div>
+            </div>
+            <p id="cell-details" class="cell-details">Select a map cell to see its hourly counts.</p>
+          </section>
+          <section class="panel">
+            <h2>Model performance</h2>
+            <p id="holdout"></p>
+            <table>
+              <thead><tr><th scope="col">Mean absolute error</th><th scope="col">CNN</th><th scope="col">Last week</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Per active cell per hour</th><td id="cnn-mae"></td><td id="baseline-mae"></td></tr>
+                <tr><th scope="row">Citywide per hour</th><td id="cnn-city"></td><td id="baseline-city"></td></tr>
+              </tbody>
+            </table>
+            <p id="model-note"></p>
+          </section>
+        </div>
+      </div>
+      <footer>
+        Complaint data from <a href="https://huggingface.co/datasets/ehong/nypd_complaint_data_historic_ds">Hugging Face</a>.
+        <a href="https://services7.arcgis.com/HDgMIJDCbHtnomY9/ArcGIS/rest/services/NYC_Borough_Boundaries/FeatureServer/0">NYC borough boundaries</a>.
+      </footer>
+    </div>
+  </main>
+</body>
+</html>
